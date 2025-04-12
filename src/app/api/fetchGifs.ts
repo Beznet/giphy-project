@@ -45,3 +45,20 @@ export async function getRandomGifs(count: number = 3): Promise<GifData[]> {
 
   return Promise.all(requests);
 }
+
+export async function searchGifs(
+  query: string,
+  limit: number = 5,
+  offset: number = 0
+): Promise<GiphyResponse> {
+  const url = `${BASE_URL}/search?api_key=${API_KEY}&q=${encodeURIComponent(
+    query
+  )}&limit=${limit}&offset=${offset}&rating=g&lang=en`;
+
+  const response = await fetch(url);
+  if (!response.ok) {
+    throw new Error(`Giphy API error: ${response.status}`);
+  }
+
+  return response.json();
+}
