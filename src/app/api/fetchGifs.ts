@@ -48,7 +48,7 @@ export async function getRandomGifs(count: number = 3): Promise<GifData[]> {
 
 export async function searchGifs(
   query: string,
-  limit: number = 5,
+  limit: number = 6,
   offset: number = 0
 ): Promise<GiphyResponse> {
   const url = `${BASE_URL}/search?api_key=${API_KEY}&q=${encodeURIComponent(
