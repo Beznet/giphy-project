@@ -46,7 +46,7 @@ const Home: NextPage = () => {
         </button>
       </form>
 
-      <div className="flex flex-wrap justify-center gap-6 w-full max-w-6xl">
+      <div className="flex flex-wrap justify-center gap-6 w-full">
         {gifs.map((gif) => (
           <div
             key={gif.id}
@@ -76,7 +76,9 @@ const Home: NextPage = () => {
       </div>
 
       {!hasSearched && gifs.length === 0 && (
-        <p className="text-gray-500 mt-6">Loading cool gifs...</p>
+        <div className="mt-6 flex justify-center items-center">
+          <div className="animate-spin rounded-full h-10 w-10 border-t-4 border-orange-500 border-solid"></div>
+        </div>
       )}
     </div>
   );
