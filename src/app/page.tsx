@@ -2,7 +2,7 @@
 
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { getRandomGifs, GifData } from "./utils/fetchGifs";
+import { getRandomGifs, GifData } from "./api/fetchGifs";
 
 const Home: NextPage = () => {
   const [gifs, setGifs] = useState<GifData[]>([]);
