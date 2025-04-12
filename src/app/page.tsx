@@ -102,36 +102,36 @@ const Home: NextPage = () => {
             </button>
           </div>
         ))}
-        {hasSearched && (
-          <div className="flex gap-4 mt-10">
-            <button
-              onClick={handlePrevious}
-              disabled={page === 0}
-              className={`px-4 py-2 rounded ${
-                page === 0
-                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                  : "bg-orange-500 text-white hover:bg-orange-600"
-              }`}
-            >
-              Previous
-            </button>
-            <span className="self-center text-gray-700">
-              Page {page + 1} of {maxPage}
-            </span>
-            <button
-              onClick={handleNext}
-              disabled={(page + 1) * LIMIT >= totalCount}
-              className={`px-4 py-2 rounded ${
-                (page + 1) * LIMIT >= totalCount
-                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
-                  : "bg-orange-500 text-white hover:bg-orange-600"
-              }`}
-            >
-              Next
-            </button>
-          </div>
-        )}
       </div>
+      {hasSearched && (
+        <div className="flex gap-4 mt-10">
+          <button
+            onClick={handlePrevious}
+            disabled={page === 0}
+            className={`px-4 py-2 rounded ${
+              page === 0
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : "bg-orange-500 text-white hover:bg-orange-600"
+            }`}
+          >
+            Previous
+          </button>
+          <span className="self-center text-gray-700">
+            Page {page + 1} of {maxPage}
+          </span>
+          <button
+            onClick={handleNext}
+            disabled={(page + 1) * LIMIT >= totalCount}
+            className={`px-4 py-2 rounded ${
+              (page + 1) * LIMIT >= totalCount
+                ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                : "bg-orange-500 text-white hover:bg-orange-600"
+            }`}
+          >
+            Next
+          </button>
+        </div>
+      )}
 
       {!hasSearched && gifs.length === 0 && (
         <div className="mt-6 flex justify-center items-center">
