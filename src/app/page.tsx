@@ -2,29 +2,58 @@
 
 import type { NextPage } from "next";
 import { useEffect, useState } from "react";
-import { getRandomGifs, searchGifs, GifData } from "./api/fetchGifs";
+import {
+  getRandomGifs,
+  searchGifs,
+  GifData,
+  GiphyResponse,
+} from "./api/fetchGifs";
 
 const Home: NextPage = () => {
   const [gifs, setGifs] = useState<GifData[]>([]);
   const [query, setQuery] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
+  const [page, setPage] = useState(0);
+  const [totalCount, setTotalCount] = useState(0);
 
   useEffect(() => {
     getRandomGifs(3).then(setGifs).catch(console.error);
   }, []);
 
+  const LIMIT = 6;
+
+  const fetchSearchResults = async (searchQuery: string, pageNum: number) => {
+    try {
+      const offset = pageNum * LIMIT;
+      const res: GiphyResponse = await searchGifs(searchQuery, LIMIT, offset);
+      setGifs(res.data as GifData[]);
+      setTotalCount(res.pagination?.total_count ?? 0);
+      setHasSearched(true);
+    } catch (err) {
+      console.error("Search error:", err);
+    }
+  };
+
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
-
-    try {
-      const res = await searchGifs(query);
-      setGifs(res.data as GifData[]);
-      setHasSearched(true);
-    } catch (err) {
-      console.error("Error fetching search results", err);
-    }
+    setPage(0);
+    fetchSearchResults(query, 0);
   };
+
+  const handleNext = () => {
+    const nextPage = page + 1;
+    setPage(nextPage);
+    fetchSearchResults(query, nextPage);
+  };
+
+  const handlePrevious = () => {
+    const prevPage = page - 1;
+    setPage(prevPage);
+    fetchSearchResults(query, prevPage);
+  };
+
+  const maxPage = Math.floor(totalCount / LIMIT);
 
   return (
     <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
@@ -73,6 +102,35 @@ const Home: NextPage = () => {
             </button>
           </div>
         ))}
+        {hasSearched && (
+          <div className="flex gap-4 mt-10">
+            <button
+              onClick={handlePrevious}
+              disabled={page === 0}
+              className={`px-4 py-2 rounded ${
+                page === 0
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-orange-500 text-white hover:bg-orange-600"
+              }`}
+            >
+              Previous
+            </button>
+            <span className="self-center text-gray-700">
+              Page {page + 1} of {maxPage}
+            </span>
+            <button
+              onClick={handleNext}
+              disabled={(page + 1) * LIMIT >= totalCount}
+              className={`px-4 py-2 rounded ${
+                (page + 1) * LIMIT >= totalCount
+                  ? "bg-gray-300 text-gray-600 cursor-not-allowed"
+                  : "bg-orange-500 text-white hover:bg-orange-600"
+              }`}
+            >
+              Next
+            </button>
+          </div>
+        )}
       </div>
 
       {!hasSearched && gifs.length === 0 && (
