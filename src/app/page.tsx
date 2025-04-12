@@ -1,6 +1,7 @@
 "use client";
 
 import type { NextPage } from "next";
+import { useRouter, useSearchParams } from "next/navigation";
 import { useEffect, useState } from "react";
 import {
   getRandomGifs,
@@ -15,9 +16,18 @@ const Home: NextPage = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const router = useRouter();
+  const searchParams = useSearchParams();
 
   useEffect(() => {
-    getRandomGifs(3).then(setGifs).catch(console.error);
+    const urlQuery = searchParams.get("query");
+    if (urlQuery) {
+      setQuery(urlQuery);
+      fetchSearchResults(urlQuery, 0);
+      setHasSearched(true);
+    } else {
+      getRandomGifs(3).then(setGifs).catch(console.error);
+    }
   }, []);
 
   const LIMIT = 6;
@@ -38,6 +48,8 @@ const Home: NextPage = () => {
     e.preventDefault();
     if (!query.trim()) return;
     setPage(0);
+    setHasSearched(true);
+    router.push(`/?query=${encodeURIComponent(query.trim())}`);
     fetchSearchResults(query, 0);
   };
 
