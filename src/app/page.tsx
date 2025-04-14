@@ -2,7 +2,8 @@
 
 import type { NextPage } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
-import { useEffect, useState } from "react";
+import debounce from "lodash.debounce";
+import { useEffect, useState, useCallback } from "react";
 import {
   getRandomGifs,
   searchGifs,
@@ -44,6 +45,18 @@ const Home: NextPage = () => {
     }
   };
 
+  const debouncedSearch = useCallback(
+    debounce((value: string) => {
+      if (value.trim()) {
+        router.push(`/?query=${encodeURIComponent(value.trim())}`);
+        fetchSearchResults(value, 0);
+        setPage(0);
+        setHasSearched(true);
+      }
+    }, 1000),
+    [router, fetchSearchResults]
+  );
+
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (!query.trim()) return;
@@ -75,7 +88,11 @@ const Home: NextPage = () => {
         <input
           type="text"
           value={query}
-          onChange={(e) => setQuery(e.target.value)}
+          onChange={(e) => {
+            const val = e.target.value;
+            setQuery(val);
+            debouncedSearch(val);
+          }}
           placeholder="Search for GIFs..."
           className="flex-grow p-3 rounded border border-gray-300 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
         />
