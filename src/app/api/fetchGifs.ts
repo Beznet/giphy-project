@@ -34,6 +34,11 @@ export async function getRandomGifs(count: number = 3): Promise<GifData[]> {
     if (!response.ok) {
       throw new Error(`Error: ${response.status}`);
     }
+    if (response.status === 429) {
+      const error = new Error("API limit hit") as Error & { status?: number };
+      error.status = 429;
+      throw error;
+    }
     const json: GiphyResponse = await response.json();
     return json.data as GifData;
   };
@@ -56,6 +61,13 @@ export async function searchGifs(
   )}&limit=${limit}&offset=${offset}&rating=g&lang=en`;
 
   const response = await fetch(url);
+
+  if (response.status === 429) {
+    const error = new Error("API limit hit") as Error & { status?: number };
+    error.status = 429;
+    throw error;
+  }
+
   if (!response.ok) {
     throw new Error(`Giphy API error: ${response.status}`);
   }
