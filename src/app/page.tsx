@@ -3,7 +3,7 @@
 import type { NextPage } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import debounce from "lodash.debounce";
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback } from "react";
 import {
   getRandomGifs,
   searchGifs,
@@ -17,44 +17,62 @@ const Home: NextPage = () => {
   const [hasSearched, setHasSearched] = useState(false);
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
+  const [isInitialLoad, setIsInitialLoad] = useState(true);
   const router = useRouter();
   const searchParams = useSearchParams();
 
   useEffect(() => {
     const urlQuery = searchParams.get("query");
-    if (urlQuery) {
-      setQuery(urlQuery);
-      fetchSearchResults(urlQuery, 0);
-      setHasSearched(true);
-    } else {
-      getRandomGifs(3).then(setGifs).catch(console.error);
+
+    if (isInitialLoad) {
+      if (urlQuery) {
+        setQuery(urlQuery);
+        fetchSearchResults(urlQuery, 0);
+        setHasSearched(true);
+      } else {
+        getRandomGifs(3).then(setGifs).catch(console.error);
+      }
+      setIsInitialLoad(false);
     }
-  }, []);
+  }, [searchParams, isInitialLoad]);
 
   const LIMIT = 6;
 
-  const fetchSearchResults = async (searchQuery: string, pageNum: number) => {
-    try {
-      const offset = pageNum * LIMIT;
-      const res: GiphyResponse = await searchGifs(searchQuery, LIMIT, offset);
-      setGifs(res.data as GifData[]);
-      setTotalCount(res.pagination?.total_count ?? 0);
-      setHasSearched(true);
-    } catch (err) {
-      console.error("Search error:", err);
-    }
-  };
+  const fetchSearchResults = useCallback(
+    async (searchQuery: string, pageNum: number) => {
+      try {
+        const offset = pageNum * LIMIT;
+        const res: GiphyResponse = await searchGifs(searchQuery, LIMIT, offset);
+        setGifs(res.data as GifData[]);
+        setTotalCount(res.pagination?.total_count ?? 0);
+        setHasSearched(true);
+      } catch (err: unknown) {
+        if ((err as { status?: number })?.status === 429) {
+          alert("You've hit the Giphy API limit!");
+        } else {
+          console.error("Search error:", err);
+        }
+      }
+    },
+    [LIMIT]
+  );
 
-  const debouncedSearch = useCallback(
-    debounce((value: string) => {
-      if (value.trim()) {
-        router.push(`/?query=${encodeURIComponent(value.trim())}`);
-        fetchSearchResults(value, 0);
+  const debouncedSearch = useMemo(
+    () =>
+      debounce((value: string) => {
+        if (!value.trim()) {
+          getRandomGifs(3).then(setGifs).catch(console.error);
+          setHasSearched(false);
+          router.push("/");
+          return;
+        }
+
         setPage(0);
         setHasSearched(true);
-      }
-    }, 1000),
-    [router, fetchSearchResults]
+        fetchSearchResults(value, 0);
+        router.push(`/?query=${encodeURIComponent(value.trim())}`);
+      }, 500),
+    [fetchSearchResults, router]
   );
 
   const handleSearch = async (e: React.FormEvent<HTMLFormElement>) => {
@@ -77,6 +95,12 @@ const Home: NextPage = () => {
     setPage(prevPage);
     fetchSearchResults(query, prevPage);
   };
+
+  useEffect(() => {
+    return () => {
+      debouncedSearch.cancel();
+    };
+  }, [debouncedSearch]);
 
   const maxPage = Math.floor(totalCount / LIMIT);
 
