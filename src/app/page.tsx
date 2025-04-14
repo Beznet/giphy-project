@@ -3,13 +3,15 @@
 import type { NextPage } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import debounce from "lodash.debounce";
-import { useEffect, useState, useMemo, useCallback } from "react";
+import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
   getRandomGifs,
   searchGifs,
   GifData,
   GiphyResponse,
 } from "./api/fetchGifs";
+
+type ResultCache = Record<string, Record<number, GifData[]>>;
 
 const Home: NextPage = () => {
   const [gifs, setGifs] = useState<GifData[]>([]);
@@ -18,8 +20,12 @@ const Home: NextPage = () => {
   const [page, setPage] = useState(0);
   const [totalCount, setTotalCount] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
+  const [resultCache, setResultCache] = useState<ResultCache>({});
+  const previousQueryRef = useRef<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
+
+  const LIMIT = 6;
 
   useEffect(() => {
     const urlQuery = searchParams.get("query");
@@ -36,25 +42,52 @@ const Home: NextPage = () => {
     }
   }, [searchParams, isInitialLoad]);
 
-  const LIMIT = 6;
-
   const fetchSearchResults = useCallback(
     async (searchQuery: string, pageNum: number) => {
+      const lowerQuery = searchQuery.toLowerCase();
+
+      if (previousQueryRef.current && previousQueryRef.current !== lowerQuery) {
+        setResultCache({});
+      }
+      previousQueryRef.current = lowerQuery;
+
+      const cached = resultCache[lowerQuery]?.[pageNum];
+      if (cached) {
+        setGifs(cached);
+        return;
+      }
+
+      const offset = pageNum * LIMIT;
+
       try {
-        const offset = pageNum * LIMIT;
         const res: GiphyResponse = await searchGifs(searchQuery, LIMIT, offset);
-        setGifs(res.data as GifData[]);
+        const newData = res.data as GifData[];
+
+        setGifs(newData);
         setTotalCount(res.pagination?.total_count ?? 0);
         setHasSearched(true);
+
+        setResultCache((prev) => ({
+          ...prev,
+          [lowerQuery]: {
+            ...(prev[lowerQuery] || {}),
+            [pageNum]: newData,
+          },
+        }));
       } catch (err: unknown) {
         if ((err as { status?: number })?.status === 429) {
-          alert("You've hit the Giphy API limit!");
+          if (cached) {
+            alert("API limit reached (using cached results)");
+            setGifs(cached);
+          } else {
+            alert("API limit reached (no cached results)");
+          }
         } else {
           console.error("Search error:", err);
         }
       }
     },
-    [LIMIT]
+    [LIMIT, resultCache]
   );
 
   const debouncedSearch = useMemo(
@@ -120,12 +153,6 @@ const Home: NextPage = () => {
           placeholder="Search for GIFs..."
           className="flex-grow p-3 rounded border border-gray-300 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
         />
-        <button
-          type="submit"
-          className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-        >
-          Search
-        </button>
       </form>
 
       <div className="flex flex-wrap justify-center gap-6 w-full">
