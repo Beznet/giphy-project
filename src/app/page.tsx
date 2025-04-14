@@ -79,17 +79,8 @@ const Home: NextPage = () => {
             [pageNum]: newData,
           },
         }));
-      } catch (err: unknown) {
-        if ((err as { status?: number })?.status === 429) {
-          if (cached) {
-            alert("API limit reached (using cached results)");
-            setGifs(cached);
-          } else {
-            alert("API limit reached (no cached results)");
-          }
-        } else {
-          console.error("Search error:", err);
-        }
+      } catch (err) {
+        console.error("Error:", err);
       }
     },
     [LIMIT, resultCache]
