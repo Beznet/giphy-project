@@ -4,12 +4,13 @@ import React from "react";
 
 interface GifCardProps {
   mp4Url: string;
+  onCopy: () => void;
 }
 
-const GifCard: React.FC<GifCardProps> = ({ mp4Url }) => {
+const GifCard: React.FC<GifCardProps> = ({ mp4Url, onCopy }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(mp4Url);
-    alert("URL Copied");
+    onCopy();
   };
 
   return (

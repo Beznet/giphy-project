@@ -15,6 +15,7 @@ import SearchForm from "./components/SearchForm";
 import LoadingSpinner from "./components/LoadingSpinner";
 import GifGrid from "./components/GifGrid";
 import { LIMIT } from "./constants";
+import SuccessToast from "./components/SuccessToast";
 
 type ResultCache = Record<string, Record<number, GifData[]>>;
 
@@ -26,6 +27,7 @@ const Home: NextPage = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [resultCache, setResultCache] = useState<ResultCache>({});
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
   const previousQueryRef = useRef<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -151,7 +153,7 @@ const Home: NextPage = () => {
         }}
         onSubmit={handleSearch}
       />
-      <GifGrid gifs={gifs} />
+      <GifGrid gifs={gifs} onCopy={() => setToastMessage("URL copied")} />
       {hasSearched && (
         <Pagination
           currentPage={page}
@@ -163,6 +165,12 @@ const Home: NextPage = () => {
       )}
 
       {!hasSearched && gifs.length === 0 && <LoadingSpinner />}
+      {toastMessage && (
+        <SuccessToast
+          message={toastMessage}
+          onClose={() => setToastMessage(null)}
+        />
+      )}
     </div>
   );
 };
