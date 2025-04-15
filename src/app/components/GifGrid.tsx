@@ -11,7 +11,7 @@ interface GifGridProps {
 
 const GifGrid: React.FC<GifGridProps> = ({ gifs, onCopy }) => {
   return (
-    <div className="flex flex-wrap justify-center gap-6 w-full">
+    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 w-full">
       {gifs.map((gif) => (
         <GifCard
           key={gif.id}

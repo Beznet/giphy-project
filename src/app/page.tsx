@@ -140,44 +140,46 @@ const Home: NextPage = () => {
   const maxPage = Math.floor(totalCount / LIMIT);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">GIPHY Picker</h1>
-      <SearchForm
-        query={query}
-        onChange={(val) => {
-          setQuery(val);
-          debouncedSearch(val);
-        }}
-        onSubmit={handleSearch}
-      />
-      <GifGrid
-        gifs={gifs}
-        onCopy={() => {
-          setToastMessage("URL copied");
-          setToastType("success");
-        }}
-      />
-      {hasSearched && (
-        <Pagination
-          currentPage={page}
-          maxPage={maxPage}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          isNextDisabled={(page + 1) * LIMIT >= totalCount}
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto">
+        <h1 className="text-3xl font-bold text-gray-800 mb-6">GIPHY Picker</h1>
+        <SearchForm
+          query={query}
+          onChange={(val) => {
+            setQuery(val);
+            debouncedSearch(val);
+          }}
+          onSubmit={handleSearch}
         />
-      )}
-
-      {!hasSearched && gifs.length === 0 && <LoadingSpinner />}
-      {toastMessage && (
-        <Toast
-          message={toastMessage}
-          type={toastType}
-          onClose={() => {
-            setToastMessage(null);
+        <GifGrid
+          gifs={gifs}
+          onCopy={() => {
+            setToastMessage("URL copied");
             setToastType("success");
           }}
         />
-      )}
+        {hasSearched && (
+          <Pagination
+            currentPage={page}
+            maxPage={maxPage}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            isNextDisabled={(page + 1) * LIMIT >= totalCount}
+          />
+        )}
+
+        {!hasSearched && gifs.length === 0 && <LoadingSpinner />}
+        {toastMessage && (
+          <Toast
+            message={toastMessage}
+            type={toastType}
+            onClose={() => {
+              setToastMessage(null);
+              setToastType("success");
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };

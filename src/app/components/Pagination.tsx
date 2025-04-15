@@ -18,7 +18,7 @@ const Pagination: React.FC<PaginationProps> = ({
   isNextDisabled,
 }) => {
   return (
-    <div className="flex gap-4 mt-10">
+    <div className="flex justify-center gap-4 mt-10">
       <button
         onClick={onPrevious}
         disabled={currentPage === 0}
