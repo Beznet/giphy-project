@@ -1,11 +1,17 @@
 "use client";
 
-import type { NextPage } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import debounce from "lodash.debounce";
 import Image from "next/image";
 import { Sixtyfour } from "next/font/google";
-import { useEffect, useState, useMemo, useCallback, useRef } from "react";
+import {
+  useEffect,
+  useState,
+  useMemo,
+  useCallback,
+  useRef,
+  Suspense,
+} from "react";
 import {
   getRandomGifs,
   searchGifs,
@@ -19,14 +25,14 @@ import GifGrid from "./components/GifGrid";
 import { LIMIT } from "./constants";
 import Toast from "./components/Toast";
 
-type ResultCache = Record<string, Record<number, GifData[]>>;
-
 const sixtyfour = Sixtyfour({
   weight: ["400"],
   subsets: ["latin"],
 });
 
-const Home: NextPage = () => {
+type ResultCache = Record<string, Record<number, GifData[]>>;
+
+function Home() {
   const [gifs, setGifs] = useState<GifData[]>([]);
   const [query, setQuery] = useState("");
   const [hasSearched, setHasSearched] = useState(false);
@@ -96,7 +102,7 @@ const Home: NextPage = () => {
         }
       }
     },
-    [LIMIT, resultCache]
+    [resultCache]
   );
 
   const debouncedSearch = useMemo(
@@ -204,6 +210,12 @@ const Home: NextPage = () => {
       </div>
     </div>
   );
-};
+}
 
-export default Home;
+export default function Page() {
+  return (
+    <Suspense fallback={<div className="p-6 text-center">Loading...</div>}>
+      <Home />
+    </Suspense>
+  );
+}
