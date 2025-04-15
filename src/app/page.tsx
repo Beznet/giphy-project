@@ -15,7 +15,7 @@ import SearchForm from "./components/SearchForm";
 import LoadingSpinner from "./components/LoadingSpinner";
 import GifGrid from "./components/GifGrid";
 import { LIMIT } from "./constants";
-import SuccessToast from "./components/SuccessToast";
+import Toast from "./components/Toast";
 
 type ResultCache = Record<string, Record<number, GifData[]>>;
 
@@ -29,6 +29,7 @@ const Home: NextPage = () => {
   const [resultCache, setResultCache] = useState<ResultCache>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
   const previousQueryRef = useRef<string | null>(null);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -80,7 +81,12 @@ const Home: NextPage = () => {
           },
         }));
       } catch (err) {
-        console.error("Error:", err);
+        if ((err as { status?: number })?.status === 429) {
+          setToastMessage("Giphy API limit reached");
+          setToastType("error");
+        } else {
+          console.error("Search error:", err);
+        }
       }
     },
     [LIMIT, resultCache]
@@ -144,7 +150,13 @@ const Home: NextPage = () => {
         }}
         onSubmit={handleSearch}
       />
-      <GifGrid gifs={gifs} onCopy={() => setToastMessage("URL copied")} />
+      <GifGrid
+        gifs={gifs}
+        onCopy={() => {
+          setToastMessage("URL copied");
+          setToastType("success");
+        }}
+      />
       {hasSearched && (
         <Pagination
           currentPage={page}
@@ -157,9 +169,13 @@ const Home: NextPage = () => {
 
       {!hasSearched && gifs.length === 0 && <LoadingSpinner />}
       {toastMessage && (
-        <SuccessToast
+        <Toast
           message={toastMessage}
-          onClose={() => setToastMessage(null)}
+          type={toastType}
+          onClose={() => {
+            setToastMessage(null);
+            setToastType("success");
+          }}
         />
       )}
     </div>
