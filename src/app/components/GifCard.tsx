@@ -15,26 +15,27 @@ const GifCard: React.FC<GifCardProps> = ({ mp4Url, onCopy }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-2 flex flex-col items-center w-full max-w-xs mx-auto">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="rounded-md w-full max-h-64 object-contain mb-2"
-      >
-        <source src={mp4Url} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <div className="flex justify-center">
+    <div className="p-2 w-full max-w-xs mx-auto">
+      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-md">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover transition hover:scale-105"
+        >
+          <source src={mp4Url} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
         <Image
           src="/copy.svg"
           alt="Copy URL"
-          width={20}
-          height={20}
+          width={30}
+          height={30}
           title="Copy URL"
           onClick={handleCopy}
-          className="cursor-pointer hover:scale-110 transition"
+          className="absolute bottom-2 right-2 bg-white/90 p-1.5 rounded-full hover:scale-110 transition cursor-pointer shadow-sm"
         />
       </div>
     </div>
