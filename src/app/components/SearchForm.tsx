@@ -20,7 +20,7 @@ const SearchForm: React.FC<SearchFormProps> = ({
         value={query}
         onChange={(e) => onChange(e.target.value)}
         placeholder="Search for GIFs..."
-        className="flex-grow p-3 rounded border border-gray-300 text-gray-900 shadow-sm focus:outline-none focus:ring-2 focus:ring-orange-400"
+        className="flex-grow p-3 rounded-lg bg-white border border-gray-300 text-gray-900 shadow-md focus:outline-none focus:ring-2 focus:ring-orange-400"
       />
     </form>
   );

@@ -153,7 +153,7 @@ function Home() {
   const maxPage = Math.floor(totalCount / LIMIT);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 flex flex-col">
+    <div className="min-h-screen bg-purple-100 p-4 sm:p-6 flex flex-col">
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-2 mb-8">
           <Image
