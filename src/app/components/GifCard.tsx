@@ -16,7 +16,7 @@ const GifCard: React.FC<GifCardProps> = ({ mp4Url, onCopy }) => {
 
   return (
     <div className="p-2 w-full max-w-xs mx-auto">
-      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-md">
+      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-md shadow-md">
         <video
           autoPlay
           loop
@@ -35,7 +35,7 @@ const GifCard: React.FC<GifCardProps> = ({ mp4Url, onCopy }) => {
           height={30}
           title="Copy URL"
           onClick={handleCopy}
-          className="absolute bottom-2 right-2 bg-white/90 p-1.5 rounded-full hover:scale-110 transition cursor-pointer shadow-sm"
+          className="absolute bottom-2 right-2 bg-white/90 p-1.5 rounded-md hover:bg-orange-500 hover:scale-110 transition-all duration-200 cursor-pointer"
         />
       </div>
     </div>
