@@ -3,6 +3,8 @@
 import type { NextPage } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import debounce from "lodash.debounce";
+import Image from "next/image";
+import { Sixtyfour } from "next/font/google";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
   getRandomGifs,
@@ -18,6 +20,11 @@ import { LIMIT } from "./constants";
 import Toast from "./components/Toast";
 
 type ResultCache = Record<string, Record<number, GifData[]>>;
+
+const sixtyfour = Sixtyfour({
+  weight: ["400"],
+  subsets: ["latin"],
+});
 
 const Home: NextPage = () => {
   const [gifs, setGifs] = useState<GifData[]>([]);
@@ -142,7 +149,23 @@ const Home: NextPage = () => {
   return (
     <div className="min-h-screen bg-gray-100 p-4 sm:p-6 flex flex-col">
       <div className="w-full max-w-7xl mx-auto">
-        <h1 className="text-3xl font-bold text-gray-800 mb-6">GIPHY Picker</h1>
+        <div className="flex items-center gap-2 mb-8">
+          <Image
+            src="/giphy-Logo.svg"
+            alt="Giphy Logo"
+            title="Giphy Logo"
+            width={0}
+            height={0}
+            sizes="(max-width: 640px) 32px, (max-width: 768px) 40px, 48px"
+            className="w-8 sm:w-10 md:w-12 h-auto"
+          />
+
+          <span
+            className={`${sixtyfour.className} text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 tracking-tight`}
+          >
+            GIPHY PICKER
+          </span>
+        </div>
         <SearchForm
           query={query}
           onChange={(val) => {
@@ -167,7 +190,6 @@ const Home: NextPage = () => {
             isNextDisabled={(page + 1) * LIMIT >= totalCount}
           />
         )}
-
         {!hasSearched && gifs.length === 0 && <LoadingSpinner />}
         {toastMessage && (
           <Toast
