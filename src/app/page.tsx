@@ -157,7 +157,7 @@ function Home() {
       <div className="w-full max-w-7xl mx-auto">
         <div className="flex items-center gap-2 mb-8">
           <Image
-            src="/giphy-Logo.svg"
+            src="/giphy-logo.svg"
             alt="Giphy Logo"
             title="Giphy Logo"
             width={0}
