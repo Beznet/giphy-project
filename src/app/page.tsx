@@ -35,8 +35,8 @@ const Home: NextPage = () => {
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [resultCache, setResultCache] = useState<ResultCache>({});
   const [toastMessage, setToastMessage] = useState<string | null>(null);
-  const previousQueryRef = useRef<string | null>(null);
   const [toastType, setToastType] = useState<"success" | "error">("success");
+  const previousQueryRef = useRef<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
 
