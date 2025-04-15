@@ -1,35 +1,43 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 interface GifCardProps {
   mp4Url: string;
+  onCopy: () => void;
 }
 
-const GifCard: React.FC<GifCardProps> = ({ mp4Url }) => {
+const GifCard: React.FC<GifCardProps> = ({ mp4Url, onCopy }) => {
   const handleCopy = () => {
     navigator.clipboard.writeText(mp4Url);
-    alert("URL Copied");
+    onCopy();
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center">
-      <video
-        autoPlay
-        loop
-        muted
-        playsInline
-        className="rounded-md w-full max-h-64 object-contain mb-4"
-      >
-        <source src={mp4Url} type="video/mp4" />
-        Your browser does not support the video tag.
-      </video>
-      <button
-        onClick={handleCopy}
-        className="px-4 py-2 bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-      >
-        Copy URL
-      </button>
+    <div className="p-2 w-full max-w-xs mx-auto">
+      <div className="relative w-full aspect-[4/3] overflow-hidden rounded-md shadow-md">
+        <video
+          autoPlay
+          loop
+          muted
+          playsInline
+          className="w-full h-full object-cover transition hover:scale-105"
+        >
+          <source src={mp4Url} type="video/mp4" />
+          Your browser does not support the video tag.
+        </video>
+
+        <Image
+          src="/copy.svg"
+          alt="Copy URL"
+          width={30}
+          height={30}
+          title="Copy URL"
+          onClick={handleCopy}
+          className="absolute bottom-2 right-2 bg-white/90 p-1.5 rounded-md hover:bg-orange-500 hover:scale-110 transition-all duration-200 cursor-pointer"
+        />
+      </div>
     </div>
   );
 };

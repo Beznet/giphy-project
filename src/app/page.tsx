@@ -3,6 +3,8 @@
 import type { NextPage } from "next";
 import { useRouter, useSearchParams } from "next/navigation";
 import debounce from "lodash.debounce";
+import Image from "next/image";
+import { Sixtyfour } from "next/font/google";
 import { useEffect, useState, useMemo, useCallback, useRef } from "react";
 import {
   getRandomGifs,
@@ -15,8 +17,14 @@ import SearchForm from "./components/SearchForm";
 import LoadingSpinner from "./components/LoadingSpinner";
 import GifGrid from "./components/GifGrid";
 import { LIMIT } from "./constants";
+import Toast from "./components/Toast";
 
 type ResultCache = Record<string, Record<number, GifData[]>>;
+
+const sixtyfour = Sixtyfour({
+  weight: ["400"],
+  subsets: ["latin"],
+});
 
 const Home: NextPage = () => {
   const [gifs, setGifs] = useState<GifData[]>([]);
@@ -26,6 +34,8 @@ const Home: NextPage = () => {
   const [totalCount, setTotalCount] = useState(0);
   const [isInitialLoad, setIsInitialLoad] = useState(true);
   const [resultCache, setResultCache] = useState<ResultCache>({});
+  const [toastMessage, setToastMessage] = useState<string | null>(null);
+  const [toastType, setToastType] = useState<"success" | "error">("success");
   const previousQueryRef = useRef<string | null>(null);
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -77,14 +87,10 @@ const Home: NextPage = () => {
             [pageNum]: newData,
           },
         }));
-      } catch (err: unknown) {
+      } catch (err) {
         if ((err as { status?: number })?.status === 429) {
-          if (cached) {
-            alert("API limit reached (using cached results)");
-            setGifs(cached);
-          } else {
-            alert("API limit reached (no cached results)");
-          }
+          setToastMessage("Giphy API limit reached");
+          setToastType("error");
         } else {
           console.error("Search error:", err);
         }
@@ -141,28 +147,61 @@ const Home: NextPage = () => {
   const maxPage = Math.floor(totalCount / LIMIT);
 
   return (
-    <div className="min-h-screen bg-gray-100 p-6 flex flex-col items-center">
-      <h1 className="text-3xl font-bold text-gray-800 mb-6">GIPHY Picker</h1>
-      <SearchForm
-        query={query}
-        onChange={(val) => {
-          setQuery(val);
-          debouncedSearch(val);
-        }}
-        onSubmit={handleSearch}
-      />
-      <GifGrid gifs={gifs} />
-      {hasSearched && (
-        <Pagination
-          currentPage={page}
-          maxPage={maxPage}
-          onPrevious={handlePrevious}
-          onNext={handleNext}
-          isNextDisabled={(page + 1) * LIMIT >= totalCount}
-        />
-      )}
+    <div className="min-h-screen bg-gray-100 p-4 sm:p-6 flex flex-col">
+      <div className="w-full max-w-7xl mx-auto">
+        <div className="flex items-center gap-2 mb-8">
+          <Image
+            src="/giphy-Logo.svg"
+            alt="Giphy Logo"
+            title="Giphy Logo"
+            width={0}
+            height={0}
+            sizes="(max-width: 640px) 32px, (max-width: 768px) 40px, 48px"
+            className="w-8 sm:w-10 md:w-12 h-auto"
+          />
 
-      {!hasSearched && gifs.length === 0 && <LoadingSpinner />}
+          <span
+            className={`${sixtyfour.className} text-2xl sm:text-3xl md:text-4xl font-bold text-gray-800 tracking-tight`}
+          >
+            GIPHY PICKER
+          </span>
+        </div>
+        <SearchForm
+          query={query}
+          onChange={(val) => {
+            setQuery(val);
+            debouncedSearch(val);
+          }}
+          onSubmit={handleSearch}
+        />
+        <GifGrid
+          gifs={gifs}
+          onCopy={() => {
+            setToastMessage("URL copied");
+            setToastType("success");
+          }}
+        />
+        {hasSearched && (
+          <Pagination
+            currentPage={page}
+            maxPage={maxPage}
+            onPrevious={handlePrevious}
+            onNext={handleNext}
+            isNextDisabled={(page + 1) * LIMIT >= totalCount}
+          />
+        )}
+        {!hasSearched && gifs.length === 0 && <LoadingSpinner />}
+        {toastMessage && (
+          <Toast
+            message={toastMessage}
+            type={toastType}
+            onClose={() => {
+              setToastMessage(null);
+              setToastType("success");
+            }}
+          />
+        )}
+      </div>
     </div>
   );
 };
