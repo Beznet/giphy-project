@@ -1,6 +1,7 @@
 "use client";
 
 import React from "react";
+import Image from "next/image";
 
 interface GifCardProps {
   mp4Url: string;
@@ -14,23 +15,28 @@ const GifCard: React.FC<GifCardProps> = ({ mp4Url, onCopy }) => {
   };
 
   return (
-    <div className="bg-white rounded-lg shadow-md p-4 flex flex-col items-center w-full max-w-xs mx-auto">
+    <div className="bg-white rounded-lg shadow-md p-2 flex flex-col items-center w-full max-w-xs mx-auto">
       <video
         autoPlay
         loop
         muted
         playsInline
-        className="rounded-md w-full max-h-64 object-contain mb-4"
+        className="rounded-md w-full max-h-64 object-contain mb-2"
       >
         <source src={mp4Url} type="video/mp4" />
         Your browser does not support the video tag.
       </video>
-      <button
-        onClick={handleCopy}
-        className="px-3 py-2 text-sm sm:text-base bg-orange-500 text-white rounded hover:bg-orange-600 transition"
-      >
-        Copy URL
-      </button>
+      <div className="flex justify-center">
+        <Image
+          src="/copy.svg"
+          alt="Copy URL"
+          width={20}
+          height={20}
+          title="Copy URL"
+          onClick={handleCopy}
+          className="cursor-pointer hover:scale-110 transition"
+        />
+      </div>
     </div>
   );
 };
